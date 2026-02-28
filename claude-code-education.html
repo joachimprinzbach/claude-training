@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mastering Claude Code – Enterprise Education</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e17;--text:#e2e8f0;--heading:#fff;--cyan:#06b6d4;--indigo:#6366f1;--light-indigo:#a5b4fc;--card-bg:rgba(255,255,255,0.03);--card-border:rgba(255,255,255,0.06);--code-bg:#0d1117;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f97316}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+#progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--indigo));z-index:1000;transition:width .3s;width:0}
+#counter{position:fixed;bottom:20px;left:20px;font-family:'JetBrains Mono',monospace;font-size:clamp(.7rem,.8vw,.9rem);color:rgba(255,255,255,.4);z-index:1000}
+#nav-dots{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:1000;display:flex;flex-direction:column;gap:6px}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15);cursor:pointer;transition:.3s;border:none}
+.nav-dot.active{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.slide{min-height:100vh;height:100vh;scroll-snap-align:start;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:clamp(1.5rem,4vw,4rem);overflow:hidden;z-index:1}
+.slide-inner{max-width:1100px;width:100%;position:relative;z-index:2}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.12;pointer-events:none}
+.orb-cyan{background:var(--cyan);width:300px;height:300px}
+.orb-indigo{background:var(--indigo);width:350px;height:350px}
+h1{font-size:clamp(2rem,4.5vw,3.8rem);font-weight:700;color:var(--heading);line-height:1.15;margin-bottom:.5em}
+h2{font-size:clamp(1.5rem,3vw,2.4rem);font-weight:700;color:var(--heading);margin-bottom:.6em}
+h3{font-size:clamp(1.1rem,1.8vw,1.5rem);font-weight:600;color:var(--heading);margin-bottom:.4em}
+p,.desc{font-size:clamp(.85rem,1.1vw,1.05rem);color:var(--text);line-height:1.65;margin-bottom:.5em}
+.badge{display:inline-block;padding:.25em .8em;border-radius:999px;font-size:clamp(.6rem,.75vw,.8rem);font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.badge-cyan{background:rgba(6,182,212,.15);color:var(--cyan);border:1px solid rgba(6,182,212,.3)}
+.badge-indigo{background:rgba(99,102,241,.15);color:var(--light-indigo);border:1px solid rgba(99,102,241,.3)}
+.badge-green{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.badge-yellow{background:rgba(234,179,8,.15);color:var(--yellow);border:1px solid rgba(234,179,8,.3)}
+.badge-orange{background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.3)}
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:clamp(.8rem,1.5vw,1.5rem)}
+code,.code{font-family:'JetBrains Mono',monospace;background:var(--code-bg);padding:.15em .4em;border-radius:4px;font-size:.9em;color:var(--cyan);border:1px solid rgba(6,182,212,.15)}
+pre{background:var(--code-bg);border:1px solid rgba(6,182,212,.15);border-radius:8px;padding:clamp(.6rem,1.2vw,1.2rem);font-family:'JetBrains Mono',monospace;font-size:clamp(.7rem,.85vw,.9rem);color:var(--cyan);overflow-x:auto;line-height:1.7}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(.5rem,1.2vw,1.2rem)}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.5rem,1vw,1rem)}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(.5rem,1vw,1rem)}
+ul{list-style:none;padding:0}
+ul li{position:relative;padding-left:1.4em;margin-bottom:.4em;font-size:clamp(.78rem,1vw,.95rem)}
+ul li::before{content:'▸';position:absolute;left:0;color:var(--cyan)}
+table{width:100%;border-collapse:collapse;font-size:clamp(.7rem,.9vw,.88rem)}
+th{text-align:left;padding:.5em .7em;border-bottom:2px solid var(--indigo);color:var(--light-indigo);font-weight:600}
+td{padding:.4em .7em;border-bottom:1px solid var(--card-border)}
+.reveal{opacity:0;transform:translateY(25px);transition:opacity .6s,transform .6s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal:nth-child(2){transition-delay:.1s}.reveal:nth-child(3){transition-delay:.2s}.reveal:nth-child(4){transition-delay:.3s}.reveal:nth-child(5){transition-delay:.4s}.reveal:nth-child(6){transition-delay:.5s}.reveal:nth-child(7){transition-delay:.6s}.reveal:nth-child(8){transition-delay:.7s}
+.typing{border-right:2px solid var(--cyan);animation:blink 1s step-end infinite;display:inline-block}
+@keyframes blink{50%{border-color:transparent}}
+.glow{text-shadow:0 0 20px rgba(6,182,212,.3)}
+.accent{color:var(--cyan)}.accent-i{color:var(--light-indigo)}
+.small{font-size:clamp(.65rem,.8vw,.8rem);color:rgba(255,255,255,.45)}
+.mt{margin-top:clamp(.5rem,1vw,1rem)}.mb{margin-bottom:clamp(.5rem,1vw,1rem)}
+.bar{height:8px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,.06)}
+.bar-fill{height:100%;border-radius:4px;transition:width 1s}
+.flow-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:center}
+.flow-box{padding:.45em .9em;border-radius:8px;font-size:clamp(.7rem,.85vw,.85rem);font-weight:600;text-align:center;white-space:nowrap}
+.flow-arrow{color:var(--cyan);font-size:clamp(.8rem,1.2vw,1.2rem)}
+.quote{border-left:3px solid var(--indigo);padding-left:1em;font-style:italic;color:rgba(255,255,255,.7);font-size:clamp(.85rem,1.05vw,1rem)}
+.quote cite{display:block;margin-top:.3em;font-style:normal;color:var(--light-indigo);font-size:.85em}
+@media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.slide{padding:clamp(1rem,3vw,2rem)}#nav-dots{display:none}}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}.typing{animation:none}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="counter"></div>
+<div id="nav-dots"></div>
+
+<!-- SLIDE 1: Title -->
+<section class="slide" id="s1">
+<div class="orb orb-cyan" style="top:-10%;left:-5%"></div>
+<div class="orb orb-indigo" style="bottom:-10%;right:-5%"></div>
+<div class="slide-inner" style="text-align:center">
+<div class="reveal"><span class="badge badge-cyan">Enterprise Training Program</span></div>
+<h1 class="reveal glow" style="margin-top:.5em">Mastering<br><span class="accent">Claude Code</span></h1>
+<p class="reveal" style="font-size:clamp(.95rem,1.3vw,1.2rem);color:rgba(255,255,255,.6);max-width:600px;margin:0 auto">The comprehensive guide to AI-powered development with Anthropic's agentic coding CLI</p>
+<pre class="reveal" style="display:inline-block;margin-top:1.5em;text-align:left"><span style="color:var(--light-indigo)">$</span> claude <span class="typing">  </span></pre>
+</div>
+</section>
+
+<!-- SLIDE 2: Agenda -->
+<section class="slide" id="s2">
+<div class="orb orb-indigo" style="top:5%;right:-8%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Overview</span></div>
+<h2 class="reveal">Agenda</h2>
+<div class="grid-2 mt">
+<div class="card reveal"><h3>&#x1f680; Getting Started</h3><p class="small">Installation, first launch, interaction loop</p></div>
+<div class="card reveal"><h3>&#x1f9e0; Context System</h3><p class="small">Token window, zones, recovery, cost awareness</p></div>
+<div class="card reveal"><h3>&#x1f6e0;&#xfe0f; Core Workflows</h3><p class="small">Plan mode, rewind, model selection, prompting</p></div>
+<div class="card reveal"><h3>&#x1f4dd; CLAUDE.md & Memory</h3><p class="small">Memory hierarchy, compounding knowledge</p></div>
+<div class="card reveal"><h3>&#x1f916; Agents & Skills</h3><p class="small">Specialized sub-processes, reusable modules</p></div>
+<div class="card reveal"><h3>&#x2699;&#xfe0f; Hooks, MCP & Config</h3><p class="small">Event automation, external tools, settings</p></div>
+<div class="card reveal"><h3>&#x1f4a1; Best Practices</h3><p class="small">Prompting, mistakes to avoid, trust calibration</p></div>
+<div class="card reveal"><h3>&#x1f3af; Daily Workflow</h3><p class="small">Practical integration, migration checklist</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 3: What Is Claude Code -->
+<section class="slide" id="s3">
+<div class="orb orb-cyan" style="bottom:0;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Foundations</span></div>
+<h2 class="reveal">What Is Claude Code?</h2>
+<p class="reveal desc">An <strong class="accent">agentic CLI tool</strong> that lives in your terminal and operates directly on your codebase.</p>
+<div class="grid-3 mt">
+<div class="card reveal"><h3 class="accent">Not Autocomplete</h3><p class="small">It doesn't guess your next line — it understands and executes full tasks.</p></div>
+<div class="card reveal"><h3 class="accent">Conversation-Based</h3><p class="small">Describe what you want in natural language. Claude reads, plans, and implements.</p></div>
+<div class="card reveal"><h3 class="accent">Full Task Execution</h3><p class="small">Reads files, runs commands, writes code, creates commits — end to end.</p></div>
+</div>
+<pre class="reveal mt"><span style="color:var(--light-indigo)">$</span> claude
+<span style="color:rgba(255,255,255,.4)">Claude&gt;</span> Refactor the auth module to use JWT tokens and add tests
+<span style="color:var(--green)">✓</span> Reading src/auth/... (4 files)
+<span style="color:var(--green)">✓</span> Implementing JWT auth provider
+<span style="color:var(--green)">✓</span> Writing tests (12 test cases)
+<span style="color:var(--green)">✓</span> All tests passing</pre>
+</div>
+</section>
+
+<!-- SLIDE 4: Why Claude Code -->
+<section class="slide" id="s4">
+<div class="orb orb-indigo" style="top:-5%;right:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Comparison</span></div>
+<h2 class="reveal">Why Claude Code?</h2>
+<div class="card reveal mt">
+<table>
+<thead><tr><th>Feature</th><th>Copilot</th><th>Cursor</th><th class="accent">Claude Code</th></tr></thead>
+<tbody>
+<tr><td>Approach</td><td>Inline suggestions</td><td>Chat + autocomplete</td><td class="accent">Full task execution</td></tr>
+<tr><td>Context</td><td>Current file</td><td>Open files + index</td><td class="accent">Entire repo + tools</td></tr>
+<tr><td>Customization</td><td>Limited</td><td>Rules files</td><td class="accent">CLAUDE.md + agents + hooks + MCP</td></tr>
+<tr><td>Task Scope</td><td>Line/function</td><td>File-level edits</td><td class="accent">Multi-file orchestration</td></tr>
+<tr><td>Runs Commands</td><td>No</td><td>Limited</td><td class="accent">Yes — builds, tests, git</td></tr>
+</tbody>
+</table>
+</div>
+<p class="reveal mt small" style="text-align:center">Key differentiator: <strong class="accent">the structured context system</strong> (CLAUDE.md, agents, skills, hooks) makes Claude learn your project over time.</p>
+</div>
+</section>
+
+<!-- SLIDE 5: Installation -->
+<section class="slide" id="s5">
+<div class="orb orb-cyan" style="top:10%;left:-8%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-green">Setup</span></div>
+<h2 class="reveal">Installation</h2>
+<div class="grid-2 mt">
+<div class="card reveal" style="border-color:rgba(234,179,8,.2)">
+<h3 style="color:var(--yellow)">Step 1: Install Node.js</h3>
+<pre style="font-size:clamp(.65rem,.8vw,.8rem);line-height:1.6;margin-top:.3em"><span style="color:var(--light-indigo)">PS&gt;</span> choco install nodejs-lts
+<span style="color:var(--light-indigo)">PS&gt;</span> $env:NODE_TLS_REJECT_UNAUTHORIZED=0</pre>
+<p class="small mt" style="color:rgba(255,255,255,.5)">Required prerequisite. Use Chocolatey (already available as Business users).</p>
+</div>
+<div class="card reveal" style="border-color:rgba(6,182,212,.2)">
+<h3 class="accent">Step 2: Install Claude Code</h3>
+<pre style="font-size:clamp(.65rem,.8vw,.8rem);line-height:1.6;margin-top:.3em"><span style="color:var(--light-indigo)">PS&gt;</span> irm https://claude.ai/install.ps1 | iex
+<span style="color:var(--light-indigo)">PS&gt;</span> claude --version
+<span style="color:rgba(255,255,255,.5)">claude-code v2.x.x</span></pre>
+<p class="small mt" style="color:rgba(255,255,255,.5)">Official install script. Works in PowerShell and WSL.</p>
+</div>
+</div>
+<p class="reveal mt small">Config location: <code>%USERPROFILE%\.claude\</code> (Windows) or <code>~/.claude/</code> (WSL).</p>
+</div>
+</section>
+
+<!-- SLIDE 6: First Launch -->
+<section class="slide" id="s6">
+<div class="orb orb-indigo" style="bottom:5%;right:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-green">Setup</span></div>
+<h2 class="reveal">First Launch</h2>
+<p class="reveal desc">Configure your Bedrock connection, then launch. Two options:</p>
+<div class="grid-2 mt">
+<div class="card reveal" style="border-color:rgba(6,182,212,.2)">
+<h3 class="accent">Option A: PowerShell (Windows env vars)</h3>
+<pre style="font-size:clamp(.55rem,.68vw,.68rem);line-height:1.5;margin-top:.3em"><span style="color:var(--light-indigo)">[Environment]::SetEnvironmentVariable</span>(
+  "CLAUDE_CODE_USE_BEDROCK", "1", "User")
+<span style="color:var(--light-indigo)">[Environment]::SetEnvironmentVariable</span>(
+  "AWS_REGION", "eu-central-1", "User")
+<span style="color:var(--light-indigo)">[Environment]::SetEnvironmentVariable</span>(
+  "ANTHROPIC_MODEL",
+  "eu.anthropic.claude-opus-4-6-v1", "User")
+<span style="color:var(--light-indigo)">[Environment]::SetEnvironmentVariable</span>(
+  "ANTHROPIC_SMALL_FAST_MODEL",
+  "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "User")
+<span style="color:var(--light-indigo)">[Environment]::SetEnvironmentVariable</span>(
+  "AWS_BEARER_TOKEN_BEDROCK",
+  "YOUR_API_KEY", "User")
+
+<span style="color:rgba(255,255,255,.4)"># Proxy — pick one:</span>
+<span style="color:var(--light-indigo)">[Environment]::SetEnvironmentVariable</span>(
+  "HTTPS_PROXY",
+  "http://localhost:8888", "User")     <span style="color:rgba(255,255,255,.4)"># ProxyProxy</span>
+<span style="color:var(--light-indigo)">[Environment]::SetEnvironmentVariable</span>(
+  "HTTPS_PROXY",
+  "http://185.46.212.88:9400", "User") <span style="color:rgba(255,255,255,.4)"># Zscaler direct</span></pre>
+<p class="small mt" style="color:rgba(255,255,255,.5)">Stored in Windows registry. Available to all apps. Restart terminal after.<br>Use <code>localhost:8888</code> if you run ProxyProxy, otherwise the Zscaler proxy directly.</p>
+</div>
+<div class="card reveal" style="border-color:rgba(99,102,241,.2)">
+<h3 style="color:var(--light-indigo)">Option B: settings.json (Claude Code only)</h3>
+<pre style="font-size:clamp(.55rem,.68vw,.68rem);line-height:1.5;margin-top:.3em"><span style="color:rgba(255,255,255,.4)">// ~/.claude/settings.json</span>
+{
+  <span style="color:var(--cyan)">"env"</span>: {
+    "CLAUDE_CODE_USE_BEDROCK": "1",
+    "AWS_REGION": "eu-central-1",
+    "ANTHROPIC_MODEL":
+      "eu.anthropic.claude-opus-4-6-v1",
+    "ANTHROPIC_SMALL_FAST_MODEL":
+      "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "8192",
+    "MAX_THINKING_TOKENS": "8192",
+    "AWS_BEARER_TOKEN_BEDROCK": "YOUR_API_KEY",
+    "HTTPS_PROXY": "http://localhost:8888"
+  }
+}</pre>
+<p class="small mt" style="color:rgba(255,255,255,.5)">Scoped to Claude Code. No restart needed. Easy to share across team.<br>Proxy: use <code>localhost:8888</code> (ProxyProxy) or <code>185.46.212.88:9400</code> (Zscaler direct).</p>
+</div>
+</div>
+<p class="reveal mt small">Then: <code>cd your-project</code> &rarr; <code>claude</code> &rarr; start describing tasks.</p>
+</div>
+</section>
+
+<!-- EXERCISE 1: Installation & First Launch -->
+<section class="slide" id="ex1">
+<div class="orb orb-cyan" style="top:10%;right:10%"></div>
+<div class="slide-inner" style="text-align:center">
+<div class="reveal"><span class="badge badge-green">Hands-On</span></div>
+<h2 class="reveal">Exercise 1: Get Up and Running</h2>
+<div class="grid-2 mt" style="text-align:left">
+<div class="card reveal"><h3 style="color:var(--green)">1. Verify Node.js</h3><pre style="font-size:clamp(.65rem,.8vw,.8rem);margin-top:.3em"><span style="color:var(--light-indigo)">PS&gt;</span> node --version
+<span style="color:var(--green)">v22.x.x</span></pre></div>
+<div class="card reveal"><h3 style="color:var(--green)">2. Verify Claude Code</h3><pre style="font-size:clamp(.65rem,.8vw,.8rem);margin-top:.3em"><span style="color:var(--light-indigo)">PS&gt;</span> claude --version
+<span style="color:var(--green)">claude-code v2.x.x</span></pre></div>
+<div class="card reveal"><h3 style="color:var(--green)">3. Launch Your First Session</h3><p class="small">Navigate to a project folder and run <code>claude</code>. Ask it: <code>What does this project do?</code></p></div>
+<div class="card reveal"><h3 style="color:var(--green)">4. Your First Task</h3><p class="small">Ask Claude: <code>List all TODO comments in this project</code> and see how it searches your codebase.</p></div>
+</div>
+<p class="reveal mt small" style="color:var(--yellow)">Take 5 minutes. Raise your hand if you hit issues.</p>
+</div>
+</section>
+
+<!-- SLIDE 7: Interaction Loop -->
+<section class="slide" id="s7">
+<div class="orb orb-cyan" style="top:5%;right:15%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Core Concept</span></div>
+<h2 class="reveal">The Interaction Loop</h2>
+<div class="flow-row reveal mt">
+<div class="flow-box" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.3);color:var(--cyan)">Describe</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:var(--light-indigo)">Analyze</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:var(--light-indigo)">Propose</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.3);color:var(--yellow)">Review</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)">Decide</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)">Verify</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.3);color:var(--cyan)">Commit</div>
+</div>
+<div class="grid-2 mt">
+<div class="card reveal"><h3>You Describe</h3><p class="small">Tell Claude what you need in natural language.</p></div>
+<div class="card reveal"><h3>Claude Analyzes</h3><p class="small">Reads files, understands structure, forms a plan.</p></div>
+<div class="card reveal"><h3>Claude Proposes</h3><p class="small">Shows you the changes it wants to make as diffs.</p></div>
+<div class="card reveal"><h3>You Decide</h3><p class="small">Accept, reject, or ask for modifications. Then verify and commit.</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 8: Essential Commands -->
+<section class="slide" id="s8">
+<div class="orb orb-indigo" style="bottom:0;left:0"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Reference</span></div>
+<h2 class="reveal">Essential Commands</h2>
+<div class="card reveal mt">
+<table>
+<thead><tr><th>Command</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><code>/help</code></td><td>Show all available commands</td></tr>
+<tr><td><code>/clear</code></td><td>Reset conversation &mdash; fresh context window</td></tr>
+<tr><td><code>/compact</code></td><td>Summarize conversation to reclaim tokens</td></tr>
+<tr><td><code>/status</code></td><td>Show context usage, model, session info</td></tr>
+<tr><td><code>/exit</code></td><td>End the session</td></tr>
+<tr><td><code>/plan</code></td><td>Enter read-only Plan Mode</td></tr>
+<tr><td><code>/rewind</code></td><td>Undo the last Claude action</td></tr>
+</tbody>
+</table>
+</div>
+<p class="reveal mt small">All slash commands are available at any point in the conversation.</p>
+</div>
+</section>
+
+<!-- SLIDE 9: Quick Actions -->
+<section class="slide" id="s9">
+<div class="orb orb-cyan" style="top:-5%;left:20%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Reference</span></div>
+<h2 class="reveal">Quick Actions &amp; Shortcuts</h2>
+<div class="grid-3 mt">
+<div class="card reveal"><h3><code>!</code> Prefix</h3><p class="small">Run shell commands directly.<br><code>! npm test</code></p></div>
+<div class="card reveal"><h3><code>@</code> Prefix</h3><p class="small">Reference files explicitly.<br><code>@src/auth.ts fix the bug</code></p></div>
+<div class="card reveal"><h3>Ctrl+C</h3><p class="small">Cancel current operation without exiting the session.</p></div>
+</div>
+<div class="grid-3 mt">
+<div class="card reveal"><h3>Esc &times; 2</h3><p class="small">Quick rewind &mdash; undo last action.</p></div>
+<div class="card reveal"><h3>Shift+Tab</h3><p class="small">Toggle between plan and code mode inline.</p></div>
+<div class="card reveal"><h3>Up Arrow</h3><p class="small">Recall previous prompts for editing.</p></div>
+</div>
+</div>
+</section>
+
+<!-- EXERCISE 2: Commands & Navigation -->
+<section class="slide" id="ex2">
+<div class="orb orb-indigo" style="bottom:5%;left:-5%"></div>
+<div class="slide-inner" style="text-align:center">
+<div class="reveal"><span class="badge badge-green">Hands-On</span></div>
+<h2 class="reveal">Exercise 2: Try the Controls</h2>
+<div class="grid-3 mt" style="text-align:left">
+<div class="card reveal"><h3 style="color:var(--green)">1. Check Status</h3><p class="small">Type <code>/status</code> to see your model, context usage, and session info.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">2. Use @ Reference</h3><p class="small">Pick any file and ask: <code>@README.md summarize this</code></p></div>
+<div class="card reveal"><h3 style="color:var(--green)">3. Run a Shell Command</h3><p class="small">Type <code>! git log --oneline -5</code> to run a command without leaving Claude.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">4. Try Plan Mode</h3><p class="small">Type <code>/plan</code>, then ask Claude to plan a small change. Notice it can only read, not write.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">5. Clear Context</h3><p class="small">Type <code>/clear</code> to reset your conversation. Notice the counter resets.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">6. Recall Prompt</h3><p class="small">Press <strong>Up Arrow</strong> to recall your previous prompt and re-edit it.</p></div>
+</div>
+<p class="reveal mt small" style="color:var(--yellow)">Take 5 minutes to explore. Get comfortable with the controls.</p>
+</div>
+</section>
+
+<!-- SLIDE 10: Permission Modes -->
+<section class="slide" id="s10">
+<div class="orb orb-indigo" style="bottom:10%;right:5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-yellow">Safety</span></div>
+<h2 class="reveal">Permission Modes</h2>
+<div class="grid-2 mt">
+<div class="card reveal" style="border-color:rgba(34,197,94,.2)"><h3 style="color:var(--green)">Default</h3><p class="small">Asks before every file write and command. <strong>Recommended for beginners.</strong></p></div>
+<div class="card reveal" style="border-color:rgba(234,179,8,.2)"><h3 style="color:var(--yellow)">Auto-Accept Edits</h3><p class="small">Auto-approves file edits, still asks for commands. <code>--auto-accept-edits</code></p></div>
+<div class="card reveal" style="border-color:rgba(249,115,22,.2)"><h3 style="color:var(--orange)">Plan Mode</h3><p class="small">Read-only. Claude can only read files and search &mdash; no writes at all.</p></div>
+<div class="card reveal" style="border-color:rgba(239,68,68,.2)"><h3 style="color:var(--red)">Full Auto / Bypass</h3><p class="small"><code>--dangerously-skip-permissions</code> &mdash; No guardrails. CI/CD only. <strong>Never use interactively.</strong></p></div>
+</div>
+<p class="reveal mt small" style="color:var(--yellow)">&#x26a0; Progressive trust: start with Default, move to Auto-Accept as you build confidence.</p>
+</div>
+</section>
+
+<!-- SLIDE 11: What Are Tokens -->
+<section class="slide" id="s11">
+<div class="orb orb-indigo" style="top:-5%;right:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-red">Critical Concept</span></div>
+<h2 class="reveal">What Are Tokens?</h2>
+<p class="reveal desc">Tokens are the <strong class="accent">fundamental unit</strong> of how LLMs read and generate text &mdash; not characters, not words.</p>
+<div class="grid-2 mt">
+<div class="card reveal"><h3 class="accent">Text &rarr; Tokens</h3><p class="small">Before processing, all text is split into tokens &mdash; small chunks like words, sub-words, or punctuation. <code>refactoring</code> &rarr; <code>ref</code> + <code>actor</code> + <code>ing</code></p></div>
+<div class="card reveal"><h3 class="accent">Rule of Thumb</h3><p class="small">1 token &asymp; &frac34; of a word in English. 100 tokens &asymp; 75 words. Code is typically more token-dense than prose.</p></div>
+<div class="card reveal"><h3 class="accent">Why It Matters</h3><p class="small">Every interaction has a <strong>token budget</strong> (context window). Your prompts, Claude's responses, and all file reads consume tokens from this budget.</p></div>
+<div class="card reveal"><h3 class="accent">Cost &amp; Speed</h3><p class="small">You pay per token (input + output). Larger context = slower responses and higher cost. Keeping context lean saves both.</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 12: Token Economics -->
+<section class="slide" id="s12">
+<div class="orb orb-cyan" style="bottom:5%;right:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-red">Critical Concept</span></div>
+<h2 class="reveal">Token Economics</h2>
+<p class="reveal desc">Every API call sends the <strong class="accent">entire conversation</strong> so far as input, plus gets new output back. Both cost money.</p>
+<div class="grid-3 mt">
+<div class="card reveal" style="border-color:rgba(6,182,212,.2)"><h3 style="color:var(--cyan)">Input Tokens</h3><p class="small">Everything sent to the model: system prompt, CLAUDE.md, your messages, file contents, tool results, prior responses. <strong>Grows with every turn.</strong></p></div>
+<div class="card reveal" style="border-color:rgba(99,102,241,.2)"><h3 style="color:var(--light-indigo)">Output Tokens</h3><p class="small">What the model generates: responses, code, tool calls. <strong>5&times; more expensive</strong> than input &mdash; e.g. Sonnet 4.6: $3/MTok in vs $15/MTok out.</p></div>
+<div class="card reveal" style="border-color:rgba(34,197,94,.2)"><h3 style="color:var(--green)">Prompt Caching</h3><p class="small">Repeated context is cached &mdash; cache hits cost only <strong>$0.30/MTok</strong> (Sonnet) vs $3 base. That's a <strong>90% saving</strong>.</p></div>
+</div>
+<div class="card reveal mt" style="text-align:center">
+<p class="small" style="margin-bottom:.3em;color:var(--light-indigo);font-weight:600">Why context size drives cost</p>
+<div class="flow-row" style="font-size:clamp(.7rem,.85vw,.85rem)">
+<div class="flow-box" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.3);color:var(--cyan)">Turn 1: 5K in</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.3);color:var(--cyan)">Turn 5: 40K in</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.3);color:var(--yellow)">Turn 10: 100K in</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red)">Turn 20: 200K in</div>
+</div>
+<p class="small mt" style="color:rgba(255,255,255,.5)">Input cost compounds every turn &mdash; <code>/compact</code> and <code>/clear</code> are your cost-saving tools.</p>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 13: Context Management -->
+<section class="slide" id="s13">
+<div class="orb orb-cyan" style="top:0;left:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-red">Critical Concept</span></div>
+<h2 class="reveal">Context Management</h2>
+<p class="reveal desc">The <strong class="accent">#1 most important concept</strong> in Claude Code. Master this or nothing else matters.</p>
+<div class="grid-2 mt">
+<div class="card reveal"><h3>Context = Working Memory</h3><p class="small">Everything Claude knows: prompts, file contents, tool outputs, all in a ~200K token window.</p></div>
+<div class="card reveal"><h3>It Is Finite</h3><p class="small">When context fills up, Claude loses earlier information. Performance degrades before the hard limit.</p></div>
+</div>
+<pre class="reveal mt" style="text-align:center;font-size:clamp(.8rem,1vw,1rem)">Your prompts + Responses + File reads + Command outputs = CONTEXT
+         ~200,000 tokens  |  ~150K words  |  ~500 pages</pre>
+</div>
+</section>
+
+<!-- SLIDE 12: Context Zones -->
+<section class="slide" id="s12">
+<div class="orb orb-indigo" style="bottom:5%;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-red">Critical Concept</span></div>
+<h2 class="reveal">Context Zones</h2>
+<div class="reveal mt" style="display:flex;flex-direction:column;gap:.7rem">
+<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--green);font-weight:600;font-size:clamp(.75rem,.9vw,.9rem)">Green Zone: 0&ndash;50%</span><span class="small">Full performance</span></div><div class="bar"><div class="bar-fill" style="width:50%;background:var(--green)"></div></div></div>
+<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--yellow);font-weight:600;font-size:clamp(.75rem,.9vw,.9rem)">Yellow Zone: 50&ndash;75%</span><span class="small">Consider /compact</span></div><div class="bar"><div class="bar-fill" style="width:75%;background:var(--yellow)"></div></div></div>
+<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--orange);font-weight:600;font-size:clamp(.75rem,.9vw,.9rem)">Red Zone: 75&ndash;90%</span><span class="small">Run /compact now</span></div><div class="bar"><div class="bar-fill" style="width:90%;background:var(--orange)"></div></div></div>
+<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:var(--red);font-weight:600;font-size:clamp(.75rem,.9vw,.9rem)">Critical: 90%+</span><span class="small">/clear or start new session</span></div><div class="bar"><div class="bar-fill" style="width:97%;background:var(--red)"></div></div></div>
+</div>
+<p class="reveal mt small">Use <code>/status</code> to check your current context usage at any time.</p>
+</div>
+</section>
+
+<!-- SLIDE 13: Context Recovery -->
+<section class="slide" id="s13">
+<div class="orb orb-cyan" style="top:10%;right:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-red">Critical Concept</span></div>
+<h2 class="reveal">Context Recovery Strategies</h2>
+<div class="grid-3 mt">
+<div class="card reveal" style="border-color:rgba(34,197,94,.2)"><h3 style="color:var(--green)">/compact</h3><p class="small">Summarizes conversation history. Preserves key decisions. Frees ~40-60% of tokens. <strong>Use often.</strong></p></div>
+<div class="card reveal" style="border-color:rgba(234,179,8,.2)"><h3 style="color:var(--yellow)">/clear</h3><p class="small">Complete reset. Fresh context window. Use when switching tasks or context is heavily polluted.</p></div>
+<div class="card reveal" style="border-color:rgba(6,182,212,.2)"><h3 style="color:var(--cyan)">Targeted Approach</h3><p class="small">Start new sessions for distinct tasks. Reference specific files with <code>@</code>. Keep prompts focused.</p></div>
+</div>
+<pre class="reveal mt"><span style="color:var(--light-indigo)">Claude&gt;</span> /compact
+<span style="color:var(--green)">&#x2713;</span> Compressed 147K tokens &rarr; 23K tokens
+<span style="color:rgba(255,255,255,.5)">Key context preserved: auth refactor in progress, 8/12 tests passing</span></pre>
+</div>
+</section>
+
+<!-- SLIDE 14: What Consumes Context -->
+<section class="slide" id="s14">
+<div class="orb orb-indigo" style="bottom:0;right:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-red">Critical Concept</span></div>
+<h2 class="reveal">What Consumes Context?</h2>
+<div class="card reveal mt">
+<table>
+<thead><tr><th>Action</th><th>Token Cost</th><th>Tips</th></tr></thead>
+<tbody>
+<tr><td>Small file read (&lt;100 lines)</td><td><span class="badge badge-green">Low</span></td><td>Fine to read many small files</td></tr>
+<tr><td>Large file read (500+ lines)</td><td><span class="badge badge-red">High</span></td><td>Use <code>@file:line</code> for specific sections</td></tr>
+<tr><td>Shell command output</td><td><span class="badge badge-yellow">Medium</span></td><td>Pipe to <code>head</code> or <code>grep</code> to limit output</td></tr>
+<tr><td>Search results (grep/glob)</td><td><span class="badge badge-orange">High</span></td><td>Be specific with search patterns</td></tr>
+<tr><td>Your prompts</td><td><span class="badge badge-green">Low</span></td><td>Longer is fine if it is precise</td></tr>
+<tr><td>Claude responses</td><td><span class="badge badge-yellow">Medium</span></td><td>Ask for concise output when possible</td></tr>
+</tbody>
+</table>
+</div>
+<p class="reveal mt small">Rule of thumb: every file Claude reads costs ~1 token per character. A 200-line file is roughly 4-6K tokens.</p>
+</div>
+</section>
+
+<!-- SLIDE 15: Cost Awareness -->
+<section class="slide" id="s15">
+<div class="orb orb-cyan" style="top:5%;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-yellow">Cost</span></div>
+<h2 class="reveal">Cost Awareness</h2>
+<div class="card reveal mt">
+<table>
+<thead><tr><th>Model</th><th>Input / 1M tokens</th><th>Output / 1M tokens</th><th>Best For</th></tr></thead>
+<tbody>
+<tr><td><strong>Haiku 4.5</strong></td><td>$1.00</td><td>$5.00</td><td>Boilerplate, simple edits</td></tr>
+<tr><td><strong>Sonnet 4.6</strong></td><td>$3.00</td><td>$15.00</td><td>Features, daily coding</td></tr>
+<tr><td><strong>Opus 4.6</strong></td><td>$5.00</td><td>$25.00</td><td>Architecture, complex logic</td></tr>
+</tbody>
+</table>
+</div>
+<div class="grid-2 mt">
+<div class="card reveal"><h3>Typical Session</h3><p class="small">30-60 min focused work: <strong class="accent">$0.10 &ndash; $0.50</strong></p></div>
+<div class="card reveal"><h3>Heavy Session</h3><p class="small">Multi-hour deep refactor: <strong style="color:var(--yellow)">$1.00 &ndash; $5.00</strong></p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 16: Cost Optimization -->
+<section class="slide" id="s16">
+<div class="orb orb-indigo" style="bottom:10%;left:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-yellow">Cost</span></div>
+<h2 class="reveal">Cost Optimization Strategies</h2>
+<div class="grid-3 mt">
+<div class="card reveal"><h3>1. Be Specific</h3><p class="small">Precise prompts = fewer iterations = less context used = lower cost.</p></div>
+<div class="card reveal"><h3>2. Use /compact</h3><p class="small">Regular compaction avoids hitting limits and reduces re-processing tokens.</p></div>
+<div class="card reveal"><h3>3. Right Model</h3><p class="small">Use Haiku for boilerplate. Sonnet for features. Opus only when needed.</p></div>
+<div class="card reveal"><h3>4. Limit MCP Servers</h3><p class="small">Each MCP server adds tool definitions to every request. Only enable what you need.</p></div>
+<div class="card reveal"><h3>5. Batch Operations</h3><p class="small">Group related changes in one prompt instead of multiple small requests.</p></div>
+<div class="card reveal"><h3>6. Fresh Sessions</h3><p class="small">Start new sessions for unrelated tasks instead of carrying stale context.</p></div>
+</div>
+</div>
+</section>
+
+<!-- EXERCISE 3: Context & Cost Awareness -->
+<section class="slide" id="ex3">
+<div class="orb orb-cyan" style="top:-5%;left:15%"></div>
+<div class="slide-inner" style="text-align:center">
+<div class="reveal"><span class="badge badge-green">Hands-On</span></div>
+<h2 class="reveal">Exercise 3: Context in Action</h2>
+<div class="grid-2 mt" style="text-align:left">
+<div class="card reveal"><h3 style="color:var(--green)">1. Watch Context Grow</h3><p class="small">Run <code>/status</code>. Ask Claude to read a large file. Run <code>/status</code> again. See how token usage jumped.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">2. Compact It</h3><p class="small">Run <code>/compact</code>. Then <code>/status</code> again. Notice the token count dropped while context was preserved.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">3. Cost Experiment</h3><p class="small">Ask Claude a complex question involving multiple files. Check <code>/status</code> &mdash; observe input tokens accumulating with each turn.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">4. Fresh Start</h3><p class="small">Run <code>/clear</code> to reset completely. Compare the token count. This is your most powerful cost-saving tool.</p></div>
+</div>
+<p class="reveal mt small" style="color:var(--yellow)">Take 5 minutes. Goal: internalize how context grows and how to manage it.</p>
+</div>
+</section>
+
+<!-- SLIDE 17: Plan Mode -->
+<section class="slide" id="s17">
+<div class="orb orb-cyan" style="top:-5%;right:5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Workflow</span></div>
+<h2 class="reveal">Plan Mode</h2>
+<p class="reveal desc">Use <code>/plan</code> for read-only exploration before making changes.</p>
+<div class="grid-2 mt">
+<div class="card reveal" style="border-color:rgba(34,197,94,.2)"><h3 style="color:var(--green)">Allowed in Plan Mode</h3>
+<ul><li>Read files and directories</li><li>Search codebase (grep, glob)</li><li>Analyze architecture</li><li>Generate implementation plans</li></ul></div>
+<div class="card reveal" style="border-color:rgba(239,68,68,.2)"><h3 style="color:var(--red)">Blocked in Plan Mode</h3>
+<ul><li>Write or edit files</li><li>Run shell commands</li><li>Create commits</li><li>Any destructive operations</li></ul></div>
+</div>
+<div class="quote reveal mt">&ldquo;80% of tasks should start in Plan Mode. Understand before you act.&rdquo;<cite>&mdash; Boris Cherny, Anthropic</cite></div>
+</div>
+</section>
+
+<!-- SLIDE 18: Rewind -->
+<section class="slide" id="s18">
+<div class="orb orb-indigo" style="bottom:5%;left:5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Workflow</span></div>
+<h2 class="reveal">Rewind &mdash; Your Safety Net</h2>
+<p class="reveal desc">Made a wrong turn? Undo with increasing scope:</p>
+<div class="grid-3 mt">
+<div class="card reveal" style="border-color:rgba(34,197,94,.2)"><h3 style="color:var(--green)">Level 1: Reject</h3><p class="small">When Claude proposes changes, simply say &ldquo;no&rdquo; or press <strong>n</strong>. Nothing is written.</p></div>
+<div class="card reveal" style="border-color:rgba(234,179,8,.2)"><h3 style="color:var(--yellow)">Level 2: /rewind</h3><p class="small">Undo the last Claude action. Also: press <strong>Esc</strong> twice. Rolls back conversation and file changes.</p></div>
+<div class="card reveal" style="border-color:rgba(239,68,68,.2)"><h3 style="color:var(--red)">Level 3: git restore</h3><p class="small">Nuclear option. Use <code>git restore .</code> or <code>git stash</code> to revert all uncommitted changes.</p></div>
+</div>
+<pre class="reveal mt"><span style="color:var(--light-indigo)">Claude&gt;</span> /rewind
+<span style="color:var(--green)">&#x2713;</span> Reverted last action: edited src/auth.ts (38 lines changed)
+<span style="color:rgba(255,255,255,.5)">Conversation rolled back to previous state</span></pre>
+</div>
+</section>
+
+<!-- SLIDE 19: Model Selection -->
+<section class="slide" id="s19">
+<div class="orb orb-cyan" style="top:5%;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Workflow</span></div>
+<h2 class="reveal">Model Selection</h2>
+<div class="card reveal mt">
+<table>
+<thead><tr><th>Model</th><th>Speed</th><th>Best For</th><th>When to Use</th></tr></thead>
+<tbody>
+<tr><td><strong class="accent">Haiku 4.5</strong></td><td>Fastest</td><td>Boilerplate, renaming, formatting</td><td>Simple mechanical tasks</td></tr>
+<tr><td><strong class="accent">Sonnet 4.6</strong></td><td>Balanced</td><td>Features, bug fixes, tests</td><td>Daily driver for most work</td></tr>
+<tr><td><strong class="accent">Opus 4.6</strong></td><td>Thorough</td><td>Architecture, complex refactors</td><td>High-stakes design decisions</td></tr>
+</tbody>
+</table>
+</div>
+<div class="card reveal mt"><h3>Our Bedrock Configuration</h3>
+<pre style="font-size:clamp(.65rem,.8vw,.8rem);line-height:1.6;margin-top:.4em">CLAUDE_CODE_USE_BEDROCK=1
+AWS_REGION=eu-central-1
+ANTHROPIC_MODEL=eu.anthropic.claude-opus-4-6-v1
+ANTHROPIC_SMALL_FAST_MODEL=eu.anthropic.claude-haiku-4-5-20251001-v1:0</pre>
+<p class="small mt">Opus 4.6 is the default model. Haiku 4.5 is used for fast sub-tasks. All traffic routes through <strong class="accent">AWS Bedrock EU (Frankfurt)</strong>.</p></div>
+</div>
+</section>
+
+<!-- SLIDE 20: Memory Hierarchy -->
+<section class="slide" id="s20">
+<div class="orb orb-indigo" style="bottom:0;right:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Memory</span></div>
+<h2 class="reveal">Memory Hierarchy</h2>
+<p class="reveal desc">Three levels of CLAUDE.md &mdash; more specific always wins.</p>
+<div class="grid-3 mt">
+<div class="card reveal" style="border-color:rgba(99,102,241,.3)">
+<h3 style="color:var(--light-indigo)">Global</h3>
+<p class="small"><code>~/.claude/CLAUDE.md</code></p>
+<p class="small">Your personal preferences across all projects. Coding style, preferred tools, language.</p>
+</div>
+<div class="card reveal" style="border-color:rgba(6,182,212,.3)">
+<h3 style="color:var(--cyan)">Project</h3>
+<p class="small"><code>/project/CLAUDE.md</code></p>
+<p class="small">Shared team rules. Checked into git. Build commands, architecture decisions, conventions.</p>
+</div>
+<div class="card reveal" style="border-color:rgba(34,197,94,.3)">
+<h3 style="color:var(--green)">Local</h3>
+<p class="small"><code>/project/.claude/CLAUDE.md</code></p>
+<p class="small">Your personal overrides for this project. Git-ignored. Experimental preferences.</p>
+</div>
+</div>
+<p class="reveal mt small">Resolution order: Local &gt; Project &gt; Global. Team rules in Project, personal tweaks in Local.</p>
+</div>
+</section>
+
+<!-- SLIDE 21: Minimum Viable CLAUDE.md -->
+<section class="slide" id="s21">
+<div class="orb orb-cyan" style="top:10%;right:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Memory</span></div>
+<h2 class="reveal">Minimum Viable CLAUDE.md</h2>
+<p class="reveal desc">Start small. You need exactly two things:</p>
+<pre class="reveal mt"># My Project
+
+## Commands
+- Build: `npm run build`
+- Test: `npm test`
+- Lint: `npm run lint`</pre>
+<div class="grid-2 mt">
+<div class="card reveal"><h3 style="color:var(--green)">Start Here</h3><p class="small">Project name and build/test commands. That is enough to begin.</p></div>
+<div class="card reveal"><h3 style="color:var(--cyan)">Add Rules When Needed</h3><p class="small">Only add a new rule when Claude makes the <strong>same mistake twice</strong>. No premature rules.</p></div>
+<div class="card reveal" style="grid-column:1/-1;border-color:rgba(6,182,212,.2)"><h3 class="accent">Let Claude Write It For You</h3><p class="small">Just ask: <code>Generate a CLAUDE.md for this project</code> &mdash; Claude will analyze your repo structure, detect build tools, frameworks, and conventions, then produce a solid starting file you can refine.</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 22: Compounding Memory -->
+<section class="slide" id="s22">
+<div class="orb orb-indigo" style="bottom:5%;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Memory</span></div>
+<h2 class="reveal">CLAUDE.md as Compounding Memory</h2>
+<div class="quote reveal">&ldquo;Never correct Claude twice for the same mistake. The second time, add it to CLAUDE.md.&rdquo;<cite>&mdash; Boris Cherny, Anthropic</cite></div>
+<div class="grid-3 mt">
+<div class="card reveal"><h3>Week 1</h3><p class="small">~5 rules: project name, commands, basic conventions.</p></div>
+<div class="card reveal"><h3>Month 1</h3><p class="small">~20 rules: architecture patterns, naming conventions, test requirements.</p></div>
+<div class="card reveal"><h3>Month 3</h3><p class="small">~50 rules: deep domain knowledge, edge cases, performance guidelines.</p></div>
+</div>
+<p class="reveal mt small">Your CLAUDE.md becomes a living, growing knowledge base. Claude gets better at your project every week.</p>
+</div>
+</section>
+
+<!-- EXERCISE 4: Create Your CLAUDE.md -->
+<section class="slide" id="ex4">
+<div class="orb orb-indigo" style="bottom:10%;right:10%"></div>
+<div class="slide-inner" style="text-align:center">
+<div class="reveal"><span class="badge badge-green">Hands-On</span></div>
+<h2 class="reveal">Exercise 4: Your First CLAUDE.md</h2>
+<div class="grid-2 mt" style="text-align:left">
+<div class="card reveal"><h3 style="color:var(--green)">1. Generate It</h3><p class="small">Ask Claude: <code>Generate a CLAUDE.md for this project</code>. Let it analyze your repo and create a starting file.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">2. Review &amp; Customize</h3><p class="small">Open the generated CLAUDE.md. Does it have your build commands right? Your test runner? Edit if needed.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">3. Add a Rule</h3><p class="small">Ask Claude to do something it gets wrong (e.g. wrong import style). Correct it, then add the rule to CLAUDE.md.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">4. Verify It Sticks</h3><p class="small">Run <code>/clear</code>, start a new conversation, and repeat the task. Claude should now follow your rule.</p></div>
+</div>
+<p class="reveal mt small" style="color:var(--yellow)">Take 10 minutes. This is the single most impactful thing you can do for your productivity.</p>
+</div>
+</section>
+
+<!-- SLIDE 23: .claude/ Folder -->
+<section class="slide" id="s23">
+<div class="orb orb-cyan" style="top:-5%;left:15%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Configuration</span></div>
+<h2 class="reveal">The .claude/ Folder</h2>
+<pre class="reveal mt" style="font-size:clamp(.7rem,.85vw,.85rem);line-height:1.8">.claude/
+  CLAUDE.md            <span style="color:rgba(255,255,255,.4)"># Local memory (git-ignored)</span>
+  settings.json        <span style="color:rgba(255,255,255,.4)"># Team settings (checked in)</span>
+  settings.local.json  <span style="color:rgba(255,255,255,.4)"># Personal settings (git-ignored)</span>
+  agents/              <span style="color:rgba(255,255,255,.4)"># Specialized agent definitions</span>
+    reviewer.md
+    debugger.md
+  commands/            <span style="color:rgba(255,255,255,.4)"># Custom slash commands</span>
+    deploy.md
+    review.md
+  hooks/               <span style="color:rgba(255,255,255,.4)"># Event-driven automation scripts</span>
+    pre-edit.sh
+  rules/               <span style="color:rgba(255,255,255,.4)"># Additional rule files</span>
+  skills/              <span style="color:rgba(255,255,255,.4)"># Reusable knowledge modules</span></pre>
+</div>
+</section>
+
+<!-- SLIDE 24: Settings & Permissions -->
+<section class="slide" id="s24">
+<div class="orb orb-indigo" style="bottom:10%;right:5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Configuration</span></div>
+<h2 class="reveal">Settings &amp; Permissions</h2>
+<div class="grid-2 mt">
+<div class="card reveal"><h3><code>settings.json</code></h3><p class="small">Team-wide settings. Checked into git. Defines allowed tools, MCP servers, default model.</p></div>
+<div class="card reveal"><h3><code>settings.local.json</code></h3><p class="small">Personal overrides. Git-ignored. Your preferred model, extra MCP servers, custom permissions.</p></div>
+</div>
+<h3 class="reveal mt">Progressive Permission Levels</h3>
+<div class="grid-3 mt">
+<div class="card reveal" style="border-color:rgba(34,197,94,.2)"><h3 style="color:var(--green)">Beginner</h3><p class="small">Default permissions. Approve everything. Learn the tool.</p></div>
+<div class="card reveal" style="border-color:rgba(234,179,8,.2)"><h3 style="color:var(--yellow)">Intermediate</h3><p class="small">Auto-accept edits. Trust file changes but review commands.</p></div>
+<div class="card reveal" style="border-color:rgba(249,115,22,.2)"><h3 style="color:var(--orange)">Advanced</h3><p class="small">Allow specific commands (npm, git). Carefully scoped auto-permissions.</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 25: What Are Agents -->
+<section class="slide" id="s25">
+<div class="orb orb-cyan" style="top:5%;right:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Agents</span></div>
+<h2 class="reveal">What Are Agents?</h2>
+<p class="reveal desc">Specialized sub-processes with <strong class="accent">isolated context</strong>. Not role-playing &mdash; actual separate Claude instances.</p>
+<div class="grid-2 mt">
+<div class="card reveal" style="border-color:rgba(239,68,68,.2)"><h3 style="color:var(--red)">Without Agents</h3><p class="small">One Claude session does everything: reads code, runs tests, reviews, writes docs. Context fills up fast. Quality drops.</p></div>
+<div class="card reveal" style="border-color:rgba(34,197,94,.2)"><h3 style="color:var(--green)">With Agents</h3><p class="small">Main Claude delegates to focused experts. Reviewer agent checks code. Test agent writes tests. Each has clean context.</p></div>
+</div>
+<p class="reveal mt small">Key insight: agents have <strong>context isolation</strong>. They start fresh, do one job, return results. Your main context stays clean.</p>
+</div>
+</section>
+
+<!-- SLIDE 26: Creating Agents -->
+<section class="slide" id="s26">
+<div class="orb orb-indigo" style="bottom:0;left:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Agents</span></div>
+<h2 class="reveal">Creating Agents</h2>
+<pre class="reveal mt" style="font-size:clamp(.68rem,.82vw,.82rem);line-height:1.7"><span style="color:rgba(255,255,255,.4)"># .claude/agents/reviewer.md</span>
+---
+name: Code Reviewer
+description: Reviews code changes for quality and correctness
+model: sonnet
+tools:
+  - Read
+  - Grep
+  - Glob
+---
+
+You are a senior code reviewer. Analyze the provided changes for:
+- Logic errors and edge cases
+- Security vulnerabilities
+- Performance issues
+- Style consistency with project conventions
+
+Be concise. Flag only real issues, not nitpicks.</pre>
+<p class="reveal mt small">Invoke with: <code>/agent reviewer &lt;task description&gt;</code></p>
+</div>
+</section>
+
+<!-- SLIDE 27: Agent Examples -->
+<section class="slide" id="s27">
+<div class="orb orb-cyan" style="top:-5%;right:15%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Agents</span></div>
+<h2 class="reveal">Agent Examples</h2>
+<div class="grid-3 mt">
+<div class="card reveal"><h3 class="accent">Code Reviewer</h3><pre style="font-size:clamp(.6rem,.7vw,.72rem)">---
+name: Reviewer
+model: sonnet
+tools: [Read, Grep]
+---
+Review for bugs,
+security, performance.</pre></div>
+<div class="card reveal"><h3 class="accent">Debugger</h3><pre style="font-size:clamp(.6rem,.7vw,.72rem)">---
+name: Debugger
+model: opus
+tools: [Read, Bash, Grep]
+---
+Investigate failures.
+Read logs, form hypotheses,
+verify with tests.</pre></div>
+<div class="card reveal"><h3 class="accent">Architect</h3><pre style="font-size:clamp(.6rem,.7vw,.72rem)">---
+name: Architect
+model: opus
+tools: [Read, Glob, Grep]
+---
+Analyze codebase structure.
+Propose design improvements.
+Read-only analysis.</pre></div>
+</div>
+<p class="reveal mt small">Start with 2-3 agents. Add more as you discover repeated patterns in your workflow.</p>
+</div>
+</section>
+
+<!-- SLIDE 28: What Are Skills -->
+<section class="slide" id="s28">
+<div class="orb orb-indigo" style="bottom:10%;right:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Skills</span></div>
+<h2 class="reveal">What Are Skills?</h2>
+<p class="reveal desc">Reusable knowledge modules that Claude can invoke on demand.</p>
+<div class="grid-2 mt">
+<div class="card reveal"><h3>How They Work</h3><p class="small">Skills are markdown files in <code>.claude/skills/</code> that contain domain knowledge, patterns, and instructions. Claude loads them when relevant.</p></div>
+<div class="card reveal"><h3>When to Use</h3><p class="small">Shared patterns across projects, complex domain logic, code generation templates, API integration guides.</p></div>
+</div>
+<div class="card reveal mt" style="border-color:rgba(234,179,8,.2)"><h3 style="color:var(--yellow)">&#x26a0; Reliability Warning</h3><p class="small">Skills have ~56% reliability for being invoked when needed. <strong>Never put critical rules only in skills.</strong> Critical rules belong in CLAUDE.md where they are always loaded.</p></div>
+</div>
+</section>
+
+<!-- SLIDE 29: Frontend Design Plugin -->
+<section class="slide" id="s29">
+<div class="orb orb-cyan" style="top:-5%;right:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-green">Plugin Spotlight</span></div>
+<h2 class="reveal">Frontend Design Plugin</h2>
+<p class="reveal desc">Generates <strong class="accent">distinctive, production-grade</strong> frontend interfaces &mdash; no generic AI aesthetics.</p>
+<div class="grid-3 mt">
+<div class="card reveal"><h3 class="accent">Install</h3><pre style="font-size:clamp(.65rem,.8vw,.8rem);margin-top:.3em">claude plugin add \
+  frontend-design</pre><p class="small mt">One command. Adds the skill to your Claude Code instance.</p></div>
+<div class="card reveal"><h3 class="accent">What It Does</h3><p class="small">Bold typography, distinctive color palettes, high-impact animations, responsive layouts. Claude picks an aesthetic direction automatically.</p></div>
+<div class="card reveal"><h3 class="accent">When to Use</h3><p class="small">Landing pages, dashboards, UI components, settings panels &mdash; any frontend work where visual quality matters.</p></div>
+</div>
+<div class="card reveal mt" style="border-color:rgba(6,182,212,.2)">
+<h3>Just describe what you need</h3>
+<pre style="font-size:clamp(.65rem,.8vw,.8rem);line-height:1.6;margin-top:.3em"><span style="color:rgba(255,255,255,.4)">Claude&gt;</span> Create a dashboard for a music streaming app
+<span style="color:rgba(255,255,255,.4)">Claude&gt;</span> Build a landing page for an AI security startup
+<span style="color:rgba(255,255,255,.4)">Claude&gt;</span> Design a settings panel with dark mode</pre>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 30: GSD - Get Shit Done -->
+<section class="slide" id="s30">
+<div class="orb orb-indigo" style="top:5%;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-green">Plugin Spotlight</span></div>
+<h2 class="reveal">GSD &mdash; Get Shit Done</h2>
+<p class="reveal desc">A <strong class="accent">meta-prompting system</strong> that turns vague ideas into shipping code through structured research, planning, and verification.</p>
+<div class="grid-2 mt">
+<div class="card reveal"><h3 class="accent">The Problem It Solves</h3><p class="small"><strong>Context rot</strong> &mdash; quality degrades as Claude's context fills up during long development sessions. GSD keeps each task in a fresh 200K context.</p></div>
+<div class="card reveal"><h3 class="accent">Install</h3><pre style="font-size:clamp(.65rem,.8vw,.8rem);margin-top:.3em">npx get-shit-done-cc@latest</pre><p class="small mt">Interactive setup: choose Claude Code runtime and global vs local install.</p></div>
+<div class="card reveal"><h3 class="accent">When to Use</h3><p class="small">Building features from scratch, large multi-phase projects, architectural decisions requiring research, anything too big for a single Claude session.</p></div>
+<div class="card reveal"><h3 class="accent">How It Works</h3><p class="small">Spawns specialized sub-agents for research, planning, and execution. Each gets fresh context. Atomic Git commits per task. Parallel wave execution.</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 31: GSD Workflow & Commands -->
+<section class="slide" id="s31">
+<div class="orb orb-cyan" style="bottom:5%;right:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-green">Plugin Spotlight</span></div>
+<h2 class="reveal">GSD Workflow</h2>
+<div class="flow-row reveal mt">
+<div class="flow-box" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.3);color:var(--cyan)">Init</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:var(--light-indigo)">Discuss</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:var(--light-indigo)">Plan</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)">Execute</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.3);color:var(--yellow)">Verify</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)">Complete</div>
+</div>
+<div class="card reveal mt">
+<table>
+<thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>/gsd:new-project</code></td><td>Initialize &mdash; questions, research, requirements, roadmap</td></tr>
+<tr><td><code>/gsd:discuss-phase N</code></td><td>Shape implementation approach before planning</td></tr>
+<tr><td><code>/gsd:plan-phase N</code></td><td>Research domain, create atomic task plans, verify against goals</td></tr>
+<tr><td><code>/gsd:execute-phase N</code></td><td>Build in parallel waves &mdash; fresh context per task</td></tr>
+<tr><td><code>/gsd:verify-work N</code></td><td>Manual UAT with automated debugging</td></tr>
+<tr><td><code>/gsd:quick</code></td><td>Ad-hoc tasks (bug fixes, small features) &mdash; skip full ceremony</td></tr>
+<tr><td><code>/gsd:progress</code></td><td>Check current status and next action</td></tr>
+</tbody>
+</table>
+</div>
+<p class="reveal mt small">For existing codebases: run <code>/gsd:map-codebase</code> first so GSD learns your patterns before planning.</p>
+</div>
+</section>
+
+<!-- EXERCISE 5: Plugins & Agents -->
+<section class="slide" id="ex5">
+<div class="orb orb-cyan" style="top:5%;left:-5%"></div>
+<div class="slide-inner" style="text-align:center">
+<div class="reveal"><span class="badge badge-green">Hands-On</span></div>
+<h2 class="reveal">Exercise 5: Plugins &amp; Agents</h2>
+<div class="grid-2 mt" style="text-align:left">
+<div class="card reveal"><h3 style="color:var(--green)">1. Install Frontend Design</h3><pre style="font-size:clamp(.65rem,.8vw,.8rem);margin-top:.3em">claude plugin add frontend-design</pre><p class="small mt">Then ask: <code>Create a simple landing page for a coffee shop</code></p></div>
+<div class="card reveal"><h3 style="color:var(--green)">2. Install GSD</h3><pre style="font-size:clamp(.65rem,.8vw,.8rem);margin-top:.3em">npx get-shit-done-cc@latest</pre><p class="small mt">Then try: <code>/gsd:help</code> to see all available commands.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">3. Try GSD Quick Mode</h3><p class="small">Run <code>/gsd:quick</code> and give it a small task like adding a utility function or fixing a comment.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">4. Explore Sub-Agents</h3><p class="small">Ask Claude a complex question and watch the status bar &mdash; notice when it spawns sub-agents to research in parallel.</p></div>
+</div>
+<p class="reveal mt small" style="color:var(--yellow)">Take 10 minutes. These tools multiply your productivity significantly.</p>
+</div>
+</section>
+
+<!-- SLIDE 32: Slash Commands -->
+<section class="slide" id="s29">
+<div class="orb orb-cyan" style="top:5%;left:5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Automation</span></div>
+<h2 class="reveal">Custom Slash Commands</h2>
+<p class="reveal desc">Create repeatable workflows in <code>.claude/commands/</code></p>
+<pre class="reveal mt" style="font-size:clamp(.68rem,.82vw,.82rem);line-height:1.7"><span style="color:rgba(255,255,255,.4)"># .claude/commands/review.md</span>
+
+Review the current git diff for:
+1. Logic errors and edge cases
+2. Missing error handling
+3. Security vulnerabilities
+4. Test coverage gaps
+
+Format as a checklist with severity levels.</pre>
+<div class="grid-2 mt">
+<div class="card reveal"><h3>Invoke</h3><p class="small"><code>/review</code> &mdash; runs the command with full context.</p></div>
+<div class="card reveal"><h3>Arguments</h3><p class="small">Use <code>$ARGUMENTS</code> placeholder for dynamic input: <code>/review src/auth.ts</code></p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 30: Hooks -->
+<section class="slide" id="s30">
+<div class="orb orb-indigo" style="bottom:5%;right:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-orange">Advanced</span></div>
+<h2 class="reveal">Hooks &mdash; Event-Driven Automation</h2>
+<p class="reveal desc">Shell scripts triggered by Claude Code events. <strong class="accent">Zero token cost.</strong></p>
+<div class="grid-3 mt">
+<div class="card reveal"><h3>PreToolUse</h3><p class="small">Runs before Claude uses a tool. Can block dangerous operations.</p></div>
+<div class="card reveal"><h3>PostToolUse</h3><p class="small">Runs after a tool completes. Auto-format, auto-lint, inject context.</p></div>
+<div class="card reveal"><h3>UserPromptSubmit</h3><p class="small">Runs when you send a message. Inject git status, branch info, metadata.</p></div>
+</div>
+<pre class="reveal mt" style="font-size:clamp(.65rem,.78vw,.78rem)"><span style="color:rgba(255,255,255,.4)"># settings.json</span>
+"hooks": {
+  "PostToolUse": [{
+    "matcher": "Edit",
+    "command": "npx prettier --write \"$FILEPATH\""
+  }]
+}</pre>
+</div>
+</section>
+
+<!-- SLIDE 31: Hook Examples -->
+<section class="slide" id="s31">
+<div class="orb orb-cyan" style="top:10%;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-orange">Advanced</span></div>
+<h2 class="reveal">Hook Examples</h2>
+<div class="grid-3 mt">
+<div class="card reveal"><h3 style="color:var(--cyan)">Auto-Format on Save</h3><pre style="font-size:clamp(.58rem,.68vw,.68rem)">"PostToolUse": [{
+  "matcher": "Edit",
+  "command": "prettier --write $F"
+}]</pre></div>
+<div class="card reveal"><h3 style="color:var(--yellow)">Security Check</h3><pre style="font-size:clamp(.58rem,.68vw,.68rem)">"PreToolUse": [{
+  "matcher": "Bash",
+  "command": "check-no-secrets.sh"
+}]</pre><p class="small">Block commands that might leak secrets.</p></div>
+<div class="card reveal"><h3 style="color:var(--green)">Git Context Injection</h3><pre style="font-size:clamp(.58rem,.68vw,.68rem)">"UserPromptSubmit": [{
+  "command": "git-context.sh"
+}]</pre><p class="small">Auto-inject branch name and recent commits into every prompt.</p></div>
+</div>
+<p class="reveal mt small">Hooks run as shell scripts outside the LLM &mdash; they consume zero tokens and execute instantly.</p>
+</div>
+</section>
+
+<!-- SLIDE 32: MCP Servers -->
+<section class="slide" id="s32">
+<div class="orb orb-indigo" style="bottom:0;right:5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-orange">Advanced</span></div>
+<h2 class="reveal">MCP Servers</h2>
+<p class="reveal desc"><strong>Model Context Protocol</strong> &mdash; external tool integration for Claude Code.</p>
+<div class="grid-4 mt">
+<div class="card reveal"><h3 class="accent">Serena</h3><p class="small">Code-aware navigation. Understands symbols, references, types.</p></div>
+<div class="card reveal"><h3 class="accent">Context7</h3><p class="small">Up-to-date library documentation. No hallucinated APIs.</p></div>
+<div class="card reveal"><h3 class="accent">Playwright</h3><p class="small">Browser automation. Test UIs, scrape data, interact with web apps.</p></div>
+<div class="card reveal"><h3 class="accent">PostgreSQL</h3><p class="small">Direct database access. Query, inspect schema, debug data issues.</p></div>
+</div>
+<pre class="reveal mt" style="font-size:clamp(.65rem,.78vw,.78rem)"><span style="color:rgba(255,255,255,.4)"># settings.json</span>
+"mcpServers": {
+  "context7": { "command": "npx", "args": ["-y", "@context7/mcp"] }
+}</pre>
+<p class="reveal mt small">Each MCP server adds tool definitions to context. Only enable servers you actively use.</p>
+</div>
+</section>
+
+<!-- SLIDE 33: Configuration Decision Tree -->
+<section class="slide" id="s33">
+<div class="orb orb-cyan" style="top:5%;right:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Configuration</span></div>
+<h2 class="reveal">Configuration Decision Tree</h2>
+<p class="reveal desc">Where should this rule or behavior live?</p>
+<div class="grid-3 mt">
+<div class="card reveal" style="border-left:3px solid var(--cyan)"><h3>CLAUDE.md</h3><p class="small">Needed <strong>every session</strong>?<br>Project conventions, build commands, style rules.</p></div>
+<div class="card reveal" style="border-left:3px solid var(--orange)"><h3>Hook</h3><p class="small">Should <strong>auto-trigger</strong> on events?<br>Format on save, inject context, security gates.</p></div>
+<div class="card reveal" style="border-left:3px solid var(--indigo)"><h3>MCP Server</h3><p class="small">Needs <strong>external access</strong>?<br>Databases, APIs, browsers, documentation.</p></div>
+<div class="card reveal" style="border-left:3px solid var(--green)"><h3>Command</h3><p class="small"><strong>Repeatable workflow</strong>?<br>Review, deploy, test suites, migrations.</p></div>
+<div class="card reveal" style="border-left:3px solid var(--yellow)"><h3>Agent</h3><p class="small">Needs <strong>isolated context</strong>?<br>Code review, debugging, architecture analysis.</p></div>
+<div class="card reveal" style="border-left:3px solid var(--light-indigo)"><h3>Skill</h3><p class="small"><strong>Shared knowledge</strong>?<br>Cross-project patterns, domain expertise.</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 34: Structured Prompting -->
+<section class="slide" id="s34">
+<div class="orb orb-indigo" style="bottom:10%;left:5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Prompting</span></div>
+<h2 class="reveal">Structured Prompting with XML Tags</h2>
+<p class="reveal desc">For complex requests, use XML tags to organize your prompt:</p>
+<pre class="reveal mt" style="font-size:clamp(.65rem,.78vw,.8rem);line-height:1.7"><span style="color:var(--light-indigo)">&lt;instruction&gt;</span>
+Refactor the payment processing module to support Stripe webhooks.
+<span style="color:var(--light-indigo)">&lt;/instruction&gt;</span>
+
+<span style="color:var(--light-indigo)">&lt;context&gt;</span>
+- Current payment flow is in src/payments/
+- We use Stripe API v2023-10
+- Webhook endpoint should be POST /api/webhooks/stripe
+<span style="color:var(--light-indigo)">&lt;/context&gt;</span>
+
+<span style="color:var(--light-indigo)">&lt;constraints&gt;</span>
+- Must be backward compatible with existing orders
+- Add idempotency checks for duplicate events
+- Include comprehensive error handling
+<span style="color:var(--light-indigo)">&lt;/constraints&gt;</span>
+
+<span style="color:var(--light-indigo)">&lt;output&gt;</span>
+Create the webhook handler, add tests, update API routes.
+<span style="color:var(--light-indigo)">&lt;/output&gt;</span></pre>
+</div>
+</section>
+
+<!-- SLIDE 35: Effective Prompting -->
+<section class="slide" id="s35">
+<div class="orb orb-cyan" style="top:-5%;right:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Prompting</span></div>
+<h2 class="reveal">Effective Prompting</h2>
+<div class="grid-2 mt">
+<div class="card reveal" style="border-color:rgba(239,68,68,.2)"><h3 style="color:var(--red)">Weak Prompt</h3><p class="small" style="font-family:'JetBrains Mono',monospace">&ldquo;Fix the auth bug&rdquo;</p></div>
+<div class="card reveal" style="border-color:rgba(34,197,94,.2)"><h3 style="color:var(--green)">Strong Prompt</h3><p class="small" style="font-family:'JetBrains Mono',monospace">&ldquo;Fix the JWT validation in src/auth/middleware.ts &mdash; tokens with expired refresh claims are not returning 401. Add test coverage.&rdquo;</p></div>
+</div>
+<h3 class="reveal mt">The WHAT / WHERE / HOW / VERIFY Pattern</h3>
+<div class="grid-4 mt">
+<div class="card reveal"><h3 class="accent">WHAT</h3><p class="small">What needs to happen? Be specific about the outcome.</p></div>
+<div class="card reveal"><h3 class="accent">WHERE</h3><p class="small">Which files, modules, functions? Point Claude to the right place.</p></div>
+<div class="card reveal"><h3 class="accent">HOW</h3><p class="small">Constraints, patterns, conventions to follow.</p></div>
+<div class="card reveal"><h3 class="accent">VERIFY</h3><p class="small">How to confirm success? Tests, commands, expected behavior.</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 36: 8 Beginner Mistakes -->
+<section class="slide" id="s36">
+<div class="orb orb-indigo" style="bottom:5%;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-red">Avoid</span></div>
+<h2 class="reveal">8 Beginner Mistakes</h2>
+<div class="grid-4 mt">
+<div class="card reveal"><h3 style="color:var(--red)">1. Skipping Plan</h3><p class="small">Jumping straight to coding without understanding the problem.</p></div>
+<div class="card reveal"><h3 style="color:var(--red)">2. Ignoring Context</h3><p class="small">Letting context fill up until Claude forgets what you are building.</p></div>
+<div class="card reveal"><h3 style="color:var(--red)">3. Vague Prompts</h3><p class="small">&ldquo;Fix it&rdquo; instead of specifying what, where, and how to verify.</p></div>
+<div class="card reveal"><h3 style="color:var(--red)">4. Accepting Blindly</h3><p class="small">Approving every change without reading the diffs.</p></div>
+<div class="card reveal"><h3 style="color:var(--red)">5. No Version Control</h3><p class="small">Making changes without committing checkpoints.</p></div>
+<div class="card reveal"><h3 style="color:var(--red)">6. Broad Permissions</h3><p class="small">Starting with full auto mode before learning the tool.</p></div>
+<div class="card reveal"><h3 style="color:var(--red)">7. Mixing Tasks</h3><p class="small">Combining unrelated work in one session, polluting context.</p></div>
+<div class="card reveal"><h3 style="color:var(--red)">8. Chatbot Mentality</h3><p class="small">Having a conversation instead of giving task-oriented instructions.</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 37: Golden Rules -->
+<section class="slide" id="s37">
+<div class="orb orb-cyan" style="top:10%;right:5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-green">Essential</span></div>
+<h2 class="reveal">The 5 Golden Rules</h2>
+<div style="display:flex;flex-direction:column;gap:clamp(.5rem,.8vw,.8rem)" class="mt">
+<div class="card reveal" style="border-left:3px solid var(--green);display:flex;align-items:center;gap:1em"><div style="font-size:clamp(1.2rem,1.8vw,1.8rem);font-weight:700;color:var(--green);min-width:2em;text-align:center">1</div><div><h3>Always Review Diffs</h3><p class="small">Read every change before accepting. Claude is capable but not infallible.</p></div></div>
+<div class="card reveal" style="border-left:3px solid var(--cyan);display:flex;align-items:center;gap:1em"><div style="font-size:clamp(1.2rem,1.8vw,1.8rem);font-weight:700;color:var(--cyan);min-width:2em;text-align:center">2</div><div><h3>Use /compact Proactively</h3><p class="small">Do not wait for context warnings. Compact after completing each sub-task.</p></div></div>
+<div class="card reveal" style="border-left:3px solid var(--light-indigo);display:flex;align-items:center;gap:1em"><div style="font-size:clamp(1.2rem,1.8vw,1.8rem);font-weight:700;color:var(--light-indigo);min-width:2em;text-align:center">3</div><div><h3>Be Specific in Prompts</h3><p class="small">Include what, where, how, and verification criteria in every request.</p></div></div>
+<div class="card reveal" style="border-left:3px solid var(--yellow);display:flex;align-items:center;gap:1em"><div style="font-size:clamp(1.2rem,1.8vw,1.8rem);font-weight:700;color:var(--yellow);min-width:2em;text-align:center">4</div><div><h3>Start with Plan Mode</h3><p class="small">Explore and understand before making changes. /plan is your best friend.</p></div></div>
+<div class="card reveal" style="border-left:3px solid var(--orange);display:flex;align-items:center;gap:1em"><div style="font-size:clamp(1.2rem,1.8vw,1.8rem);font-weight:700;color:var(--orange);min-width:2em;text-align:center">5</div><div><h3>Build Your CLAUDE.md</h3><p class="small">Invest in your memory file. It compounds over time and makes Claude smarter for your project.</p></div></div>
+</div>
+</div>
+</section>
+
+<!-- EXERCISE 6: Structured Prompting -->
+<section class="slide" id="ex6">
+<div class="orb orb-indigo" style="top:-5%;right:5%"></div>
+<div class="slide-inner" style="text-align:center">
+<div class="reveal"><span class="badge badge-green">Hands-On</span></div>
+<h2 class="reveal">Exercise 6: Write a Great Prompt</h2>
+<div class="grid-2 mt" style="text-align:left">
+<div class="card reveal"><h3 style="color:var(--red)">Bad Prompt</h3><pre style="font-size:clamp(.6rem,.75vw,.75rem);margin-top:.3em;color:var(--red)">Fix the tests</pre></div>
+<div class="card reveal"><h3 style="color:var(--green)">Good Prompt</h3><pre style="font-size:clamp(.6rem,.75vw,.75rem);margin-top:.3em;color:var(--green)">Fix the failing unit test in
+src/utils/date.test.ts &mdash; the
+formatDate function returns UTC
+but the test expects local time.
+Keep the existing test structure.</pre></div>
+<div class="card reveal" style="grid-column:1/-1"><h3 style="color:var(--cyan)">Your Turn</h3><p class="small">Pick a real task in your project. Write a prompt that includes: <strong>(1)</strong> what to change, <strong>(2)</strong> which files, <strong>(3)</strong> expected behavior, <strong>(4)</strong> constraints. Run it and compare the result to a vague version of the same request.</p></div>
+</div>
+<p class="reveal mt small" style="color:var(--yellow)">Take 5 minutes. The difference in output quality will surprise you.</p>
+</div>
+</section>
+
+<!-- SLIDE 38: Trust Calibration -->
+<section class="slide" id="s38">
+<div class="orb orb-indigo" style="bottom:0;right:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-yellow">Mindset</span></div>
+<h2 class="reveal">Trust Calibration</h2>
+<p class="reveal desc">Not all code changes deserve the same level of scrutiny.</p>
+<div class="card reveal mt">
+<table>
+<thead><tr><th>Change Type</th><th>Review Level</th><th>Approach</th></tr></thead>
+<tbody>
+<tr><td>Boilerplate / scaffolding</td><td><span class="badge badge-green">Skim</span></td><td>Quick check that structure is right</td></tr>
+<tr><td>Standard features</td><td><span class="badge badge-yellow">Review</span></td><td>Read the diff, verify logic</td></tr>
+<tr><td>Business logic</td><td><span class="badge badge-orange">Deep Review</span></td><td>Line-by-line, check edge cases</td></tr>
+<tr><td>Security / auth / payments</td><td><span class="badge badge-red">Maximum</span></td><td>Deep review + security tools + tests</td></tr>
+</tbody>
+</table>
+</div>
+<div class="quote reveal mt">&ldquo;Treat AI like a capable junior developer: talented and fast, but needs oversight on critical paths.&rdquo;</div>
+</div>
+</section>
+
+<!-- SLIDE 39: Daily Workflow -->
+<section class="slide" id="s39">
+<div class="orb orb-cyan" style="top:5%;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-green">Practice</span></div>
+<h2 class="reveal">Daily Workflow</h2>
+<div class="flow-row reveal mt">
+<div class="flow-box" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:var(--light-indigo)">Morning Plan</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.3);color:var(--cyan)">Code with Claude</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.3);color:var(--yellow)">Review</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)">Commit</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:var(--light-indigo)">Handoff</div>
+</div>
+<div class="grid-2 mt">
+<div class="card reveal"><h3>Morning Plan</h3><p class="small">Start with <code>/plan</code>. Review what needs to be done. Break into discrete tasks.</p></div>
+<div class="card reveal"><h3>Code with Claude</h3><p class="small">One task per session. Be specific. Use <code>/compact</code> between sub-tasks.</p></div>
+<div class="card reveal"><h3>Review &amp; Commit</h3><p class="small">Review diffs carefully. Run tests. Commit after each completed feature.</p></div>
+<div class="card reveal"><h3>End of Day Handoff</h3><p class="small">Update CLAUDE.md with discoveries. Note open issues. Clean context for tomorrow.</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 40: Migration Checklist -->
+<section class="slide" id="s40">
+<div class="orb orb-indigo" style="bottom:10%;left:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-green">Practice</span></div>
+<h2 class="reveal">Migration Checklist</h2>
+<div class="grid-3 mt">
+<div class="card reveal" style="border-color:rgba(34,197,94,.2)"><h3 style="color:var(--green)">Week 1: Learn</h3>
+<ul><li>Install and authenticate</li><li>Complete 3 small tasks</li><li>Practice /plan and /compact</li><li>Create minimal CLAUDE.md</li><li>Use default permissions only</li></ul></div>
+<div class="card reveal" style="border-color:rgba(234,179,8,.2)"><h3 style="color:var(--yellow)">Week 2: Establish</h3>
+<ul><li>Define daily workflow</li><li>Add 5-10 CLAUDE.md rules</li><li>Create first custom command</li><li>Try auto-accept edits</li><li>Experiment with model selection</li></ul></div>
+<div class="card reveal" style="border-color:rgba(6,182,212,.2)"><h3 style="color:var(--cyan)">Week 3-4: Advance</h3>
+<ul><li>Create specialized agents</li><li>Set up hooks for auto-formatting</li><li>Configure MCP servers</li><li>Mentor a colleague</li><li>Measure productivity gains</li></ul></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 41: Advanced - Context as System -->
+<section class="slide" id="s41">
+<div class="orb orb-cyan" style="top:-5%;right:5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-orange">Advanced</span></div>
+<h2 class="reveal">Context as a System</h2>
+<p class="reveal desc">The shift from chatbot to <strong class="accent">context system</strong>. Four layers working together:</p>
+<div style="display:flex;flex-direction:column;gap:clamp(.4rem,.7vw,.7rem)" class="mt">
+<div class="card reveal" style="border-left:3px solid var(--cyan)"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Layer 1: CLAUDE.md</h3><span class="badge badge-cyan">Always Loaded</span></div><p class="small">Persistent memory. Project rules, conventions, commands. The foundation.</p></div>
+<div class="card reveal" style="border-left:3px solid var(--light-indigo)"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Layer 2: Skills</h3><span class="badge badge-indigo">On Demand</span></div><p class="small">Domain knowledge modules. Loaded when relevant to the current task.</p></div>
+<div class="card reveal" style="border-left:3px solid var(--orange)"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Layer 3: Hooks</h3><span class="badge badge-orange">Automatic</span></div><p class="small">Event-driven scripts. Zero tokens. Auto-format, inject context, enforce rules.</p></div>
+<div class="card reveal" style="border-left:3px solid var(--green)"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Layer 4: Memory</h3><span class="badge badge-green">Compounding</span></div><p class="small">Every correction becomes a rule. The system gets smarter over weeks and months.</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 42: Multi-Instance Workflows -->
+<section class="slide" id="s42">
+<div class="orb orb-indigo" style="bottom:5%;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-orange">Advanced</span></div>
+<h2 class="reveal">Multi-Instance Workflows</h2>
+<p class="reveal desc"><strong class="accent">You are the main thread.</strong> Orchestrate 2-5 Claude instances on independent tasks.</p>
+<div class="grid-2 mt">
+<div class="card reveal"><h3>Terminal 1</h3><pre style="font-size:clamp(.6rem,.72vw,.72rem)"><span style="color:var(--cyan)">claude</span> &mdash; Backend API refactor
+Working on src/api/...</pre></div>
+<div class="card reveal"><h3>Terminal 2</h3><pre style="font-size:clamp(.6rem,.72vw,.72rem)"><span style="color:var(--light-indigo)">claude</span> &mdash; Frontend components
+Working on src/components/...</pre></div>
+<div class="card reveal"><h3>Terminal 3</h3><pre style="font-size:clamp(.6rem,.72vw,.72rem)"><span style="color:var(--green)">claude</span> &mdash; Test suite expansion
+Working on tests/...</pre></div>
+<div class="card reveal"><h3>You (Orchestrator)</h3>
+<ul><li>Review outputs from each instance</li><li>Resolve merge conflicts</li><li>Ensure consistency across changes</li><li>Make architectural decisions</li></ul></div>
+</div>
+<p class="reveal mt small">Works best when tasks touch different files. Merge carefully when they overlap.</p>
+</div>
+</section>
+
+<!-- SLIDE 43: Key Takeaways -->
+<section class="slide" id="s43">
+<div class="orb orb-cyan" style="top:5%;right:10%"></div>
+<div class="orb orb-indigo" style="bottom:5%;left:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-cyan">Summary</span></div>
+<h2 class="reveal">Key Takeaways</h2>
+<div style="display:flex;flex-direction:column;gap:clamp(.4rem,.7vw,.7rem)" class="mt">
+<div class="card reveal" style="border-left:3px solid var(--cyan);display:flex;align-items:center;gap:1em"><div style="font-size:clamp(1.2rem,1.6vw,1.6rem);font-weight:700;color:var(--cyan);min-width:1.5em;text-align:center">1</div><div><p><strong>Context is everything.</strong> Monitor it, manage it, compact it. This is the #1 skill.</p></div></div>
+<div class="card reveal" style="border-left:3px solid var(--indigo);display:flex;align-items:center;gap:1em"><div style="font-size:clamp(1.2rem,1.6vw,1.6rem);font-weight:700;color:var(--light-indigo);min-width:1.5em;text-align:center">2</div><div><p><strong>Plan before you code.</strong> Start with /plan. Understand before you change.</p></div></div>
+<div class="card reveal" style="border-left:3px solid var(--green);display:flex;align-items:center;gap:1em"><div style="font-size:clamp(1.2rem,1.6vw,1.6rem);font-weight:700;color:var(--green);min-width:1.5em;text-align:center">3</div><div><p><strong>Build CLAUDE.md over time.</strong> Never correct Claude twice for the same mistake.</p></div></div>
+<div class="card reveal" style="border-left:3px solid var(--yellow);display:flex;align-items:center;gap:1em"><div style="font-size:clamp(1.2rem,1.6vw,1.6rem);font-weight:700;color:var(--yellow);min-width:1.5em;text-align:center">4</div><div><p><strong>Always review diffs.</strong> Trust but verify. AI is a capable junior developer.</p></div></div>
+<div class="card reveal" style="border-left:3px solid var(--orange);display:flex;align-items:center;gap:1em"><div style="font-size:clamp(1.2rem,1.6vw,1.6rem);font-weight:700;color:var(--orange);min-width:1.5em;text-align:center">5</div><div><p><strong>Be specific in prompts.</strong> WHAT + WHERE + HOW + VERIFY = great results.</p></div></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 44: Resources -->
+<section class="slide" id="s44">
+<div class="orb orb-indigo" style="top:10%;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Resources</span></div>
+<h2 class="reveal">Resources &amp; Further Reading</h2>
+<div class="grid-2 mt">
+<div class="card reveal"><h3>Official Documentation</h3>
+<ul><li><code>docs.anthropic.com/claude-code</code></li><li>Claude Code GitHub repository</li><li>Anthropic Cookbook examples</li></ul></div>
+<div class="card reveal"><h3>Community</h3>
+<ul><li>Anthropic Discord &mdash; #claude-code channel</li><li>GitHub Discussions</li><li>Community CLAUDE.md examples</li></ul></div>
+<div class="card reveal"><h3>Key Blog Posts</h3>
+<ul><li>&ldquo;Claude Code Best Practices&rdquo; &mdash; Anthropic</li><li>&ldquo;How I Use Claude Code&rdquo; &mdash; Boris Cherny</li><li>&ldquo;Context Management Guide&rdquo;</li></ul></div>
+<div class="card reveal"><h3>Enterprise</h3>
+<ul><li>Enterprise deployment guide</li><li>AWS Bedrock integration</li><li>Usage monitoring &amp; cost controls</li></ul></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 45: Thank You -->
+<section class="slide" id="s45">
+<div class="orb orb-cyan" style="top:-10%;left:-5%"></div>
+<div class="orb orb-indigo" style="bottom:-10%;right:-5%"></div>
+<div class="slide-inner" style="text-align:center">
+<div class="reveal"><span class="badge badge-cyan">Enterprise Training Program</span></div>
+<h1 class="reveal glow" style="margin-top:.5em">Thank You</h1>
+<p class="reveal" style="font-size:clamp(.95rem,1.2vw,1.15rem);color:rgba(255,255,255,.6);max-width:500px;margin:.5em auto">Questions, discussion, and next steps</p>
+<pre class="reveal" style="display:inline-block;margin-top:1.5em;text-align:left"><span style="color:var(--light-indigo)">$</span> claude
+<span style="color:rgba(255,255,255,.4)">Claude&gt;</span> Ready to help. What are we building? <span class="typing"> </span></pre>
+<p class="reveal mt small" style="color:rgba(255,255,255,.3)">Built with care for enterprise teams adopting AI-powered development.</p>
+</div>
+</section>
+
+<script>
+class SlidePresentation{
+  constructor(){
+    this.slides=document.querySelectorAll('.slide');
+    this.total=this.slides.length;
+    this.current=0;
+    this.progress=document.getElementById('progress');
+    this.counter=document.getElementById('counter');
+    this.dotsContainer=document.getElementById('nav-dots');
+    this.touchStartY=0;
+    this.init();
+  }
+  init(){
+    this.createDots();
+    this.setupObserver();
+    this.setupKeyboard();
+    this.setupTouch();
+    this.updateUI();
+  }
+  createDots(){
+    for(let i=0;i<this.total;i++){
+      const d=document.createElement('button');
+      d.className='nav-dot';
+      d.setAttribute('aria-label','Slide '+(i+1));
+      d.addEventListener('click',()=>this.goTo(i));
+      this.dotsContainer.appendChild(d);
+    }
+  }
+  setupObserver(){
+    const obs=new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          const idx=[...this.slides].indexOf(e.target);
+          this.current=idx;
+          this.updateUI();
+          e.target.querySelectorAll('.reveal').forEach(r=>r.classList.add('visible'));
+        }
+      });
+    },{threshold:0.5});
+    this.slides.forEach(s=>obs.observe(s));
+  }
+  setupKeyboard(){
+    document.addEventListener('keydown',(e)=>{
+      if(e.key==='ArrowDown'||e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();this.next();}
+      if(e.key==='ArrowUp'||e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();this.prev();}
+      if(e.key==='Home'){e.preventDefault();this.goTo(0);}
+      if(e.key==='End'){e.preventDefault();this.goTo(this.total-1);}
+    });
+  }
+  setupTouch(){
+    document.addEventListener('touchstart',(e)=>{this.touchStartY=e.touches[0].clientY;},{passive:true});
+    document.addEventListener('touchend',(e)=>{
+      const diff=this.touchStartY-e.changedTouches[0].clientY;
+      if(Math.abs(diff)>50){diff>0?this.next():this.prev();}
+    },{passive:true});
+  }
+  next(){if(this.current<this.total-1)this.goTo(this.current+1);}
+  prev(){if(this.current>0)this.goTo(this.current-1);}
+  goTo(i){this.slides[i].scrollIntoView({behavior:'smooth'});this.current=i;this.updateUI();}
+  updateUI(){
+    const pct=((this.current+1)/this.total)*100;
+    this.progress.style.width=pct+'%';
+    this.counter.textContent=(this.current+1)+' / '+this.total;
+    this.dotsContainer.querySelectorAll('.nav-dot').forEach((d,i)=>{
+      d.classList.toggle('active',i===this.current);
+    });
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>new SlidePresentation());
+</script>
+</body>
+</html>
