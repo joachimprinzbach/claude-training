@@ -1033,6 +1033,99 @@ Create the webhook handler, add tests, update API routes.
 </div>
 </section>
 
+<!-- SLIDE 36: The AI Feedback Loop -->
+<section class="slide" id="s36a">
+<div class="orb orb-cyan" style="top:-5%;right:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-red">Key Insight</span></div>
+<h2 class="reveal">The AI Feedback Loop</h2>
+<p class="reveal desc">AI-assisted development is only as fast as your <strong class="accent">build &rarr; test &rarr; verify</strong> cycle. If Claude can't see the result, it can't improve it.</p>
+<div class="flow-row reveal mt">
+<div class="flow-box" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.3);color:var(--cyan)">Write</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)">Build</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)">Test</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.3);color:var(--yellow)">Verify</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:var(--light-indigo)">Fix</div><span class="flow-arrow">&rarr;</span>
+<div class="flow-box" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.3);color:var(--cyan)">Repeat</div>
+</div>
+<div class="grid-3 mt">
+<div class="card reveal" style="border-color:rgba(34,197,94,.2)"><h3 style="color:var(--green)">Fast Cycle = High Quality</h3><p class="small">If build + test takes <strong>5 seconds</strong>, Claude can iterate 10+ times in a session. It reads errors, fixes, and retries autonomously.</p></div>
+<div class="card reveal" style="border-color:rgba(234,179,8,.2)"><h3 style="color:var(--yellow)">Slow Cycle = Guessing</h3><p class="small">If build takes <strong>2+ minutes</strong>, Claude can only try 2&ndash;3 times before context fills up. It starts guessing instead of verifying.</p></div>
+<div class="card reveal" style="border-color:rgba(239,68,68,.2)"><h3 style="color:var(--red)">No Cycle = Blind</h3><p class="small">If Claude can't run your tests at all, it's writing code <strong>without feedback</strong>. Quality drops dramatically.</p></div>
+</div>
+<p class="reveal mt small">The #1 investment for AI-assisted dev: <strong class="accent">make your feedback loop as fast as possible.</strong></p>
+</div>
+</section>
+
+<!-- SLIDE 36b: Beyond Writing Code -->
+<section class="slide" id="s36b">
+<div class="orb orb-indigo" style="bottom:5%;left:-5%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-indigo">Capabilities</span></div>
+<h2 class="reveal">Claude Does More Than Write Code</h2>
+<p class="reveal desc">Claude's verification loop is its <strong class="accent">superpower</strong>. It doesn't just generate &mdash; it runs, reads output, and fixes.</p>
+<div class="grid-3 mt">
+<div class="card reveal"><h3 class="accent">Runs Your Build</h3><p class="small"><code>mvn compile</code>, <code>gradle build</code> &mdash; reads compiler errors, fixes them, rebuilds. Iterates until green.</p></div>
+<div class="card reveal"><h3 class="accent">Runs Your Tests</h3><p class="small">Executes <code>mvn test</code>, parses failures, fixes the code or the test, reruns. Full TDD loop.</p></div>
+<div class="card reveal"><h3 class="accent">Reads Logs &amp; Stack Traces</h3><p class="small">Paste a stack trace or point to a log file. Claude traces the root cause through your codebase.</p></div>
+<div class="card reveal"><h3 class="accent">Refactors Safely</h3><p class="small">Rename, extract, move &mdash; across files. Then runs tests to verify nothing broke. Safer than IDE refactoring for complex changes.</p></div>
+<div class="card reveal"><h3 class="accent">Writes &amp; Fixes Tests</h3><p class="small">Generates unit tests, integration tests, edge cases. If a test fails, it determines whether the test or the code is wrong.</p></div>
+<div class="card reveal"><h3 class="accent">Reviews &amp; Explains</h3><p class="small">Code reviews, architecture explanations, onboarding docs. Ask <code>Explain the request lifecycle in this Spring Boot app</code>.</p></div>
+</div>
+</div>
+</section>
+
+<!-- SLIDE 36c: Practical Tips for Java/Spring -->
+<section class="slide" id="s36c">
+<div class="orb orb-cyan" style="top:10%;right:10%"></div>
+<div class="slide-inner">
+<div class="reveal"><span class="badge badge-orange">For Java Devs</span></div>
+<h2 class="reveal">Optimizing for AI &mdash; Spring Boot Tips</h2>
+<div class="grid-2 mt">
+<div class="card reveal" style="border-color:rgba(34,197,94,.2)">
+<h3 style="color:var(--green)">Speed Up Your Feedback Loop</h3>
+<ul>
+<li>Use <strong>Spring Boot DevTools</strong> for hot reload</li>
+<li>Run <strong>single test classes</strong>, not the full suite:<br><code>mvn test -pl module -Dtest=MyTest</code></li>
+<li>Use <strong>Gradle</strong> with build cache for faster incremental builds</li>
+<li>Keep modules small &mdash; smaller scope = faster compile + test</li>
+</ul>
+</div>
+<div class="card reveal" style="border-color:rgba(6,182,212,.2)">
+<h3 class="accent">Put This in Your CLAUDE.md</h3>
+<pre style="font-size:clamp(.58rem,.72vw,.72rem);line-height:1.5;margin-top:.3em">## Commands
+- Build: `mvn compile -q`
+- Test: `mvn test -q`
+- Single test: `mvn test -Dtest=$CLASS`
+- Run: `mvn spring-boot:run`
+
+## Conventions
+- Java 17+, Spring Boot 3.x
+- Use constructor injection
+- Tests with JUnit 5 + Mockito
+- Always run tests after changes</pre>
+</div>
+<div class="card reveal" style="border-color:rgba(234,179,8,.2)">
+<h3 style="color:var(--yellow)">Think Small for AI</h3>
+<ul>
+<li><strong>Microservices</strong> &gt; monolith for AI dev &mdash; faster builds, clearer scope</li>
+<li><strong>Standalone scripts</strong> (Python, Node) for prototyping &mdash; instant feedback</li>
+<li>Consider <strong>separate modules</strong> for logic Claude works on most</li>
+</ul>
+</div>
+<div class="card reveal" style="border-color:rgba(99,102,241,.2)">
+<h3 style="color:var(--light-indigo)">Consider Fast Languages for New Tools</h3>
+<ul>
+<li><strong>Python</strong> &mdash; instant feedback, no compile, huge AI ecosystem</li>
+<li><strong>TypeScript/Node</strong> &mdash; fast build, great for APIs &amp; CLIs</li>
+<li><strong>Go</strong> &mdash; compiles in seconds, single binary, strong stdlib</li>
+<li>Keep Java/Gosu for your <strong>core platform</strong> &mdash; use fast languages for <strong>tooling, scripts, prototypes</strong></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
 <!-- SLIDE 36: 8 Beginner Mistakes -->
 <section class="slide" id="s36">
 <div class="orb orb-indigo" style="bottom:5%;left:-5%"></div>
